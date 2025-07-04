@@ -255,6 +255,25 @@ class DatabaseService {
         });
     }
     
+    async clearStore(storeName) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject('Database not initialized');
+                return;
+            }
+            
+            const transaction = this.db.transaction(storeName, 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.clear();
+            
+            request.onsuccess = () => {
+                console.log(`Store ${storeName} cleared successfully`);
+                resolve();
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
     async getByIndex(storeName, indexName, value) {
         return new Promise((resolve, reject) => {
             if (!this.db) {
@@ -367,6 +386,104 @@ class DatabaseService {
     async getProductsByVendorId(vendorId) {
         const allProducts = await this.getAll(OBJECT_STORES.PRODUCTS);
         return allProducts.filter(product => product.vendorId === vendorId);
+    }
+    
+    // Method to get all files in a directory
+    async getAll(path) {
+        // If this is a database store name, use the regular getAll method
+        if (Object.values(OBJECT_STORES).includes(path)) {
+            return this._getAllFromStore(path);
+        }
+        
+        // Otherwise, try to list files in the directory
+        return this._listFilesInDirectory(path);
+    }
+    
+    // Original getAll method renamed to _getAllFromStore
+    async _getAllFromStore(storeName) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject('Database not initialized');
+                return;
+            }
+            
+            const transaction = this.db.transaction(storeName, 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+            
+            request.onsuccess = () => {
+                // If this is the products store, ensure image paths are correct
+                if (storeName === OBJECT_STORES.PRODUCTS) {
+                    const products = request.result;
+                    const validCategories = [
+                        'Textile', 
+                        'Pottery and ceramics', 
+                        'Traditional Jewellery', 
+                        'Organic Products', 
+                        'Tribal Art', 
+                        'Wood crafts'
+                    ];
+                    
+                    // Log product paths for debugging but don't filter them out
+                    products.forEach(product => {
+                        if (product.image) {
+                            const isValidPath = validCategories.some(category => 
+                                product.image.includes(`images/${category}/`)
+                            );
+                            console.log(`Product ${product.id} - ${product.name}: ${product.image} - Valid path: ${isValidPath}`);
+                        }
+                    });
+                    
+                    resolve(products);
+                } else {
+                    resolve(request.result);
+                }
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    // Method to list files in a directory
+    async _listFilesInDirectory(directoryPath) {
+        return new Promise((resolve) => {
+            try {
+                console.log(`Listing files in directory: ${directoryPath}`);
+                
+                // For this demo, we'll use a simulated approach to get image files
+                // In a real application, this would be an API call to the server
+                
+                // First, try to get images that match this path from the products database
+                this._getAllFromStore(OBJECT_STORES.PRODUCTS)
+                    .then(products => {
+                        // Filter products that have images in this directory
+                        const matchingProducts = products.filter(product => 
+                            product.image && product.image.startsWith(directoryPath)
+                        );
+                        
+                        if (matchingProducts.length > 0) {
+                            console.log(`Found ${matchingProducts.length} products with images in ${directoryPath}`);
+                            
+                            // Extract filenames from the image paths
+                            const files = matchingProducts.map(product => {
+                                const parts = product.image.split('/');
+                                return { name: parts[parts.length - 1] };
+                            });
+                            
+                            resolve(files);
+                        } else {
+                            console.log(`No products found with images in ${directoryPath}`);
+                            resolve([]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Error getting products for directory ${directoryPath}:`, error);
+                        resolve([]);
+                    });
+            } catch (error) {
+                console.error(`Error listing files in directory ${directoryPath}:`, error);
+                resolve([]);
+            }
+        });
     }
 }
 

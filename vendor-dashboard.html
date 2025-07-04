@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Grameen Bazaar - Vendor Dashboard</title>
+    <!-- Link to CSS files -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="vendor-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo">
+            <h1>Grameen Bazaar</h1>
+        </div>
+        <button class="hamburger" id="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="products">My Products</a></li>
+            <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="orders">Orders</a></li>
+            <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="analytics">Analytics</a></li>
+            <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="settings">Settings</a></li>
+        </ul>
+        <div class="user-actions">
+            <div class="vendor-profile">
+                <span id="vendor-name">Vendor</span>
+                <button id="logout-btn" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div class="dashboard-welcome">
+            <h2>Welcome to Your Vendor Dashboard</h2>
+            <p>Manage your products, track orders, and grow your business</p>
+        </div>
+        <div class="dashboard-summary">
+            <div class="summary-card">
+                <i class="fas fa-box"></i>
+                <h3 id="total-products">0</h3>
+                <p>Products</p>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3 id="pending-orders">0</h3>
+                <p>Pending Orders</p>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-rupee-sign"></i>
+                <h3 id="total-sales">₹0</h3>
+                <p>Total Sales</p>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-star"></i>
+                <h3 id="avg-rating">0.0</h3>
+                <p>Avg. Rating</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Tabs -->
+    <section class="dashboard-container">
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" data-tab="products">
+                <i class="fas fa-box"></i> My Products
+            </button>
+            <button class="tab-btn" data-tab="add-product">
+                <i class="fas fa-plus"></i> Add Product
+            </button>
+            <button class="tab-btn" data-tab="orders">
+                <i class="fas fa-shopping-cart"></i> Orders
+            </button>
+            <button class="tab-btn" data-tab="analytics">
+                <i class="fas fa-chart-line"></i> Analytics
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-container">
+            <!-- Products Tab -->
+            <div class="tab-content active" id="products-tab">
+                <div class="tab-header">
+                    <h3>My Products</h3>
+                    <div class="product-actions">
+                        <div class="search-container">
+                            <input type="text" id="product-search" placeholder="Search products...">
+                            <button id="search-product-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        <button id="add-product-btn" class="btn-primary">
+                            <i class="fas fa-plus"></i> Add New Product
+                        </button>
+                    </div>
+                </div>
+                <div class="product-filters">
+                    <div class="filter-group">
+                        <label for="product-category-filter">Category:</label>
+                        <select id="product-category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="textiles">Handloom Textiles</option>
+                            <option value="pottery">Pottery & Ceramics</option>
+                            <option value="jewelry">Traditional Jewelry</option>
+                            <option value="woodcraft">Wood Crafts</option>
+                            <option value="organic">Organic Products</option>
+                            <option value="tribal">Tribal Art</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="product-status-filter">Status:</label>
+                        <select id="product-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="vendor-product-list">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Products will be loaded dynamically -->
+                            <tr class="loading-row">
+                                <td colspan="7">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Loading products...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button id="prev-product-page" disabled><i class="fas fa-chevron-left"></i></button>
+                        <span id="product-page-indicator">Page 1 of 1</span>
+                        <button id="next-product-page"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product Tab -->
+            <div class="tab-content" id="add-product-tab">
+                <div class="tab-header">
+                    <h3>Add New Product</h3>
+                </div>
+                <form id="add-product-form" class="product-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-name">Product Name</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-category">Category</label>
+                            <select id="product-category" required>
+                                <option value="">Select Category</option>
+                                <option value="textiles">Handloom Textiles</option>
+                                <option value="pottery">Pottery & Ceramics</option>
+                                <option value="jewelry">Traditional Jewelry</option>
+                                <option value="woodcraft">Wood Crafts</option>
+                                <option value="organic">Organic Products</option>
+                                <option value="tribal">Tribal Art</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-price">Price (₹)</label>
+                            <input type="number" id="product-price" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-stock">Stock Quantity</label>
+                            <input type="number" id="product-stock" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <textarea id="product-description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">Product Image</label>
+                        <input type="file" id="product-image" accept="image/*" required>
+                        <div class="image-preview" id="image-preview">
+                            <p>No image selected</p>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-material">Material</label>
+                            <input type="text" id="product-material">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-origin">Origin</label>
+                            <input type="text" id="product-origin">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-featured">Featured Product</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="product-featured">
+                            <label for="product-featured">Show as featured product</label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="reset" class="btn-secondary">Reset</button>
+                        <button type="submit" class="btn-primary">Add Product</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Orders Tab -->
+            <div class="tab-content" id="orders-tab">
+                <div class="tab-header">
+                    <h3>Orders</h3>
+                    <div class="order-filters">
+                        <div class="filter-group">
+                            <label for="order-status-filter">Status:</label>
+                            <select id="order-status-filter">
+                                <option value="all">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-list">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-table-body">
+                            <!-- Orders will be loaded dynamically -->
+                            <tr class="loading-row">
+                                <td colspan="7">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Loading orders...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button id="prev-order-page" disabled><i class="fas fa-chevron-left"></i></button>
+                        <span id="order-page-indicator">Page 1 of 1</span>
+                        <button id="next-order-page"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content" id="analytics-tab">
+                <div class="tab-header">
+                    <h3>Analytics</h3>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option value="7days">Last 7 Days</option>
+                            <option value="30days">Last 30 Days</option>
+                            <option value="90days">Last 90 Days</option>
+                            <option value="year">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Sales Overview</h4>
+                        <div class="chart-container">
+                            <canvas id="sales-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Top Products</h4>
+                        <div class="chart-container">
+                            <canvas id="products-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Customer Demographics</h4>
+                        <div class="chart-container">
+                            <canvas id="demographics-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Order Status</h4>
+                        <div class="chart-container">
+                            <canvas id="status-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings-tab">
+                <div class="tab-header">
+                    <h3>Account Settings</h3>
+                </div>
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h4>Profile Information</h4>
+                        <form id="profile-form" class="settings-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="vendor-store-name">Store Name</label>
+                                    <input type="text" id="vendor-store-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vendor-email">Email</label>
+                                    <input type="email" id="vendor-email" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="vendor-phone">Phone</label>
+                                    <input type="tel" id="vendor-phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vendor-location">Location</label>
+                                    <input type="text" id="vendor-location" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vendor-description">Store Description</label>
+                                <textarea id="vendor-description" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="vendor-logo">Store Logo</label>
+                                <input type="file" id="vendor-logo" accept="image/*">
+                                <div class="image-preview" id="logo-preview">
+                                    <p>No logo uploaded</p>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="settings-section">
+                        <h4>Change Password</h4>
+                        <form id="password-form" class="settings-form">
+                            <div class="form-group">
+                                <label for="current-password">Current Password</label>
+                                <input type="password" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <input type="password" id="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm New Password</label>
+                                <input type="password" id="confirm-password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Grameen Bazaar</h3>
+                <p>Preserving Indian heritage through rural craftsmanship.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="products">My Products</a></li>
+                    <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="orders">Orders</a></li>
+                    <li><a href="javascript:void(0);" class="nav-tab-link" data-tab="analytics">Analytics</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 MG Road, Bangalore, India</p>
+                <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                <p><i class="fas fa-envelope"></i> info@grameenbazaar.in</p>
+            </div>
+            <div class="footer-section">
+                <h3>Help Center</h3>
+                <ul>
+                    <li><a href="#">Selling Guidelines</a></li>
+                    <li><a href="#">Product Photography Tips</a></li>
+                    <li><a href="#">Shipping Information</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Grameen Bazaar. All rights reserved. Supporting rural Indian artisans.</p>
+        </div>
+    </footer>
+
+    <!-- Product Edit Modal -->
+    <div class="modal" id="edit-product-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="edit-product-form" class="product-form">
+                <input type="hidden" id="edit-product-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-product-name">Product Name</label>
+                        <input type="text" id="edit-product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-category">Category</label>
+                        <select id="edit-product-category" required>
+                            <option value="">Select Category</option>
+                            <option value="textiles">Handloom Textiles</option>
+                            <option value="pottery">Pottery & Ceramics</option>
+                            <option value="jewelry">Traditional Jewelry</option>
+                            <option value="woodcraft">Wood Crafts</option>
+                            <option value="organic">Organic Products</option>
+                            <option value="tribal">Tribal Art</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-product-price">Price (₹)</label>
+                        <input type="number" id="edit-product-price" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-stock">Stock Quantity</label>
+                        <input type="number" id="edit-product-stock" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-product-description">Description</label>
+                    <textarea id="edit-product-description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-product-image">Product Image</label>
+                    <input type="file" id="edit-product-image" accept="image/*">
+                    <div class="image-preview" id="edit-image-preview">
+                        <img id="edit-product-image-preview" src="" alt="Product Image">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-product-material">Material</label>
+                        <input type="text" id="edit-product-material">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-origin">Origin</label>
+                        <input type="text" id="edit-product-origin">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-product-featured">Featured Product</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="edit-product-featured">
+                        <label for="edit-product-featured">Show as featured product</label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="delete-product-btn" class="btn-danger">Delete Product</button>
+                    <button type="submit" class="btn-primary">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="order-details-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Order Details</h2>
+            <div id="order-details-content">
+                <!-- Order details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Confirm Action</h2>
+            <p id="confirm-message">Are you sure you want to perform this action?</p>
+            <div class="confirm-actions">
+                <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+                <button id="confirm-proceed" class="btn-danger">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="database.js"></script>
+    <script src="vendor-dashboard.js"></script>
+</body>
+</html> 
